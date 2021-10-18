@@ -1,0 +1,25 @@
+priorities:
+
+()    1
+
+^     2
+
+*/    3
+
++-    4
+
+----------------------
+
+stack is empty                  push (op)
+
+operator has higher priority    push (op)
+
+operator has same priority      pop  (op)
+                                push (new op)
+
+operator has lower priority     pop  (op)
+                                push (new op)
+
+no more operands                pop  (op)
+
+

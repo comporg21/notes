@@ -1,0 +1,135 @@
+opcode operand_list
+
+operand_list can have 0, 1, 2, or rarely 3 operands,separated by commas.
+
+all operands are sources, but one operand might also be a destination.
+
+addl %edi, %ecx
+
+
+Data movement
+
+    Move                            mov
+    Conditional Move                cmov
+    Sign or zero extension          movs, movz
+    Stack                           push, pop
+
+Arithmetic and logic
+
+    Integer arithmetic              add, sub, mul, imul, div, idiv, 
+                                    lea, sal, sar, shl,  shr, rol,
+                                    ror, inc, dec, neg
+
+    Binary logic                    and, or, xor, not
+
+    Boolean logic                   test, cmp
+
+Control transfer
+
+    Unconditional jump              jmp
+
+    Conditional jumps               j<condition> ex: jne
+
+    Subroutines                     call, ret
+
+
+Note:
+subq %rax, %rbx  # %rbx := %rbx - %rax
+
+
+opcode suffixes
+
+describe data type of the operation or a condition code.
+
+opcode for data movement, arithmetic, or logic uses a single character suffix to indicate data type.
+
+if the suffix is missing, it can usually be inferred from the sizes of the operand registers.
+
+movq -16(%rbp), %rax
+
+
+
+C declaration         C constant      x86_64 size     suffix      data type
+
+  char                'c'             1               b           Byte
+  short               512             2               w           Word
+  int                 512             4               l or d      Double word
+  unsigned int        512U            4               l or d      Double word
+  long                512L            8               q           Quad word
+  unsigned long       512UL           8               q           Quad word
+  char *              "5.12"          8               q           Quad word
+  float               5.12F           4               s           Single prcsn
+  double              5.12            8               d           Double prcs
+  long double         5.12L           16              t           Extended
+
+
+  Opcode suffixes for extension
+
+  movzbl %al, %edx
+
+  movsql %eax, %rdx
+
+  z means 'extend with zeros'  bl means from b size to l size
+  s means 'preserve the sign'  lq means from l size to q size
+
+  ACHTUNG: results of 32bit operations are implicitly zero-extended to 64bit values.
+
+  results of 8-16bit operations are not.
+
+  so when moving from %al to %edx, you have smth unknown in left part of %edx
+
+  when moving from %eax to %rdx you have zeros in left part of %rdx
+
+
+
+
+Conditional Operations
+
+conditional jumps and moves also use one or two character suffixes to indicate the condition code
+
+      cmpq $4096, %r14
+
+      jne .L5
+
+
+
+
+Status register, RFLAGS register
+
+Bits      Abbreviation    Description
+0         CF              Carry       Last ALU op generated a carry
+                                      or borrow out of the most significant bit
+1                         Reserved
+2         PF              Parity
+3                         Reserved
+4         AF              Adjust
+5                         Reserved
+6         ZF              Zero        Res of last ALU op is 0
+7         SF              Sign        Last ALU op res has a sign bit set.
+8         TF              Trap
+9         IF              Interrupt enable
+10        DF              Direction
+11        OF              Overflow    ALU op resulted in arithmetic overflow
+12-63                     System flags or reserved
+
+
+decq %rbx   # decrement %rbx and set ZF if the result is 0.
+jne .L5
+
+
+Condition codes
+
+Code          Translation         RFLAGS status flags checked
+a             if above            CF = 0 and ZF = 0
+ae            if above or equal   CF = 0
+c             on carry            CF = 1
+e             if equal            ZF = 1
+ge            if greater or equal SF = OF
+ne            not equal           ZF = 0
+o             on overflow         OF = 1
+z             if zero             ZF = 1
+
+
+Why condition codes 'e' and 'ne' check the ZF?
+
+Hardware typically compares integer operands using substraction.
