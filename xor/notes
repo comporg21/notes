@@ -1,0 +1,120 @@
+AND gate
+Input 1 (A)	input 2 (B)	output (Q)
+0	0	0
+0	1	0
+1	0	0
+1	1	1
+
+
+OR gate
+input 1 (A)	input 2 (B)	output (Q)
+0	0	0
+0	1	1
+1	0	1
+1	1	1
+
+
+NOT
+
+input (A)	output (Q)
+0	1
+1	0
+
+NAND
+input 1(A)	input 2 (B)	output (Q)
+0	0	1
+0	1	1
+1	0	1
+1	1	0
+
+NOR
+input 1 (A)	input 2 (B)	output (Q)
+0	0	1
+0	1	0
+1	0	0
+1	1	0
+
+XOR
+X-OR or exclusive OR gate is something different from OR gate. If both inputs of this logic gate are same (either 0 or 1), then output will be low (0). If one output is low and another one is high, then output will be high (1). See the symbol, boolean expression and truth table of exclusive OR gate below. 
+
+input 1 (A)	input 2 (B)	output Q
+0	0	0
+0	1	1
+1	0	1
+1	1	0
+
+
+https://mdrabiulislam.com/logic-gates/
+
+
+
+Bitwise XOR ( ^ ) like the other operators (except ~) also take two equal-length bit patterns. If both bits in the compared position of the bit patterns are 0 or 1, the bit in the resulting bit pattern is 0, otherwise 1.
+
+In short, it means that it returns 1 only if exactly one bit is set to 1 out of the two bits in comparison ( Exclusive OR ).
+ A = 5 = 0101, B = 3 = 0011
+ A ^ B = 0101 ^ 0011 = 0110 = 6
+
+properties:
+
+n ^ n = 0
+
+n ^ 0 = n
+
+
+ https://hackernoon.com/xor-the-magical-bit-wise-operator-24d3012ed821
+
+
+________________________
+
+X := X XOR Y; /* XOR the values and store the result in X */
+Y := Y XOR X; /* XOR the values and store the result in Y */
+X := X XOR Y; /* XOR the values and store the result in X */
+
+Since XOR is a commutative operation, either X XOR Y or Y XOR X can be used interchangeably in any of the foregoing three lines; however, when the three-XOR swap is coded in assembly language, this interchangeability is not available within each single line, because the first operand of the XOR instruction specifies the target location at which the result of the operation is stored. The algorithm typically corresponds to three machine-code instructions, represented by corresponding pseudocode and assembly instructions in the three rows of the following table:
+Pseudocode 	IBM System/370 assembly 	x86 assembly
+X := X XOR Y 	XR R1,R2 	xor eax, ebx
+Y := Y XOR X 	XR R2,R1 	xor ebx, eax
+X := X XOR Y 	XR R1,R2 	xor eax, ebx
+
+In the above System/370 assembly code sample, R1 and R2 are distinct registers, and each XR operation leaves its result in the register named in the first argument. Using x86 assembly, values X and Y are in registers eax and ebx (respectively), and xor places the result of the operation in the first register.
+
+https://en.wikipedia.org/wiki/XOR_swap_algorithm
+_____________________________________
+
+
+See XOR Linked List:
+https://en.wikipedia.org/wiki/XOR_linked_list
+
+
+Union of Sets
+
+If set A and set B are two sets, then A union B is the set that contains all the elements of set A and set B. It is denoted as A ∪ B.
+
+Example: Set A = {1,2,3} and B = {4,5,6}, then A union B is:
+
+A ∪ B = {1,2,3,4,5,6}
+
+
+Intersection of Sets
+
+If set A and set B are two sets, then A intersection B is the set that contains only the common elements between set A and set B. It is denoted as A ∩ B.
+
+Example: Set A = {1,2,3} and B = {4,5,6}, then A intersection B is:
+
+A ∩ B = { } or Ø
+
+Since A and B do not have any elements in common, so their intersection will give null set.
+
+
+Difference of Sets
+
+If set A and set B are two sets, then set A difference set B is a set which has elements of A but no elements of B. It is denoted as A – B.
+
+Example: A = {1,2,3} and B = {2,3,4}
+
+A – B = {1}
+
+https://byjus.com/maths/sets/#definition
+
+
+Wirth: https://people.inf.ethz.ch/wirth/Oberon/SETs.pdf

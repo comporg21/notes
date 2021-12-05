@@ -1,0 +1,376 @@
+ .      .      .      .      .      .      .      .      .      .      .
+.   B E S P I N   S Y S T E M   .       .       .       .       .       .
+   .        .        .        .        .        .        .        .        .
+     .         .         .        _......____._        .         .
+   .          .          . ..--'"" .           """"""---...          .
+                   _...--""        ................       `-.              .
+Velser's Ring   .-'        ...:'::::;:::%:.::::::_;;:...     `-.
+        \    .-'       ..::::'''''   _...---'"""":::+;_::.      `.      .
+  .      \ .' .    ..::::'      _.-""               :::)::.H'gaard`.
+         .\     ..;:::'     _.-'         .             f::'::    o  _ BESPIN
+        /  \| .:::%'  .  .-"                   Oron .-.  ::;;:.   /" "x
+  .   .'  ""::.::'    .-"     _.--'"""-.           (   )  ::.::  |_.-' |
+     .'    ::;:'    .'     .-" .d@@b.   \    .    . `-'   ::%::   \_ _/    .
+    .'    :,::'    /   . _'    8@@@@8   j      .-'       :::::      " o
+    | .  :.%:' .  j     (_)    `@@@P'  .'   .-"         ::.::    .  f  Dru-
+    |    ::::     ( Miser  -..____...-'  .-"          .::::'       /   donna
+.   |    `:`::    `.                ..--'        .  .::'::   .    /
+    j     `:::::    `-._____...---""             .::%:::'       .'  .
+     \      ::.:%..             .       .    ...:,::::'       .'
+ .    \       `:::`:..                ....::::.::::'       .-'          .
+       \    .   ``:::%::`::.......:::::%::.::::''       .-'
+      . `.        . ``::::::%::::.::;;:::::'''      _.-'          .
+  .       `-..     .    .   ````'''''         . _.-'     .          .
+         .    ""--...____    .   ______......--' .         .         .
+  .        .        .    """"""""     .        .        .        .        .
+ .       .       .       .       .       .       .       .       .    LS
+     .      .      .      .      .      .      .      .      .      .      .
+
+
+
+yoda speaks english with non standard grammar:  object–subject–verb word order
+
+			           .--.                  Try not.
+ ::\`--._,'.::.`._.--'/::     Do or do not.
+ ::::.  ` __::__ '  .::::    There is no try.
+ ::::::-:.`'..`'.:-::::::
+ ::::::::\ `--' /::::::::              -Yoda
+
+
+
+
+>When nine hundred years old you reach, look as good you will not.
+
+
+
+                   ____                  
+                _.' :  `._               
+            .-.'`.  ;   .'`.-.           
+   __      / : ___\ ;  /___ ; \      __  
+ ,'_ ""--.:__;".-.";: :".-.":__;.--"" _`,
+ :' `.t""--.. '<@.`;_  ',@>` ..--""j.' `;
+      `:-.._J '-.-'L__ `-- ' L_..-;'     
+        "-.__ ;  .-"  "-.  : __.-"       
+            L ' /.------.\ ' J           
+             "-.   "--"   .-"            
+            __.l"-:_JL_;-";.__           
+         .-j/'.;  ;""""  / .'\"-.        
+       .' /:`. "-.:     .-" .';  `.      
+    .-"  / ;  "-. "-..-" .-"  :    "-.   
+ .+"-.  : :      "-.__.-"      ;-._   \  
+ ; \  `.; ;                    : : "+. ; 
+ :  ;   ; ;                    : ;  : \: 
+ ;  :   ; :                    ;:   ;  : 
+: \  ;  :  ;                  : ;  /  :: 
+;  ; :   ; :                  ;   :   ;: 
+:  :  ;  :  ;                : :  ;  : ; 
+;\    :   ; :                ; ;     ; ; 
+: `."-;   :  ;              :  ;    /  ; 
+ ;    -:   ; :              ;  : .-"   : 
+ :\     \  :  ;            : \.-"      : 
+  ;`.    \  ; :            ;.'_..--  / ; 
+  :  "-.  "-:  ;          :/."      .'  :
+   \         \ :          ;/  __        :
+    \       .-`.\        /t-""  ":-+.   :
+     `.  .-"    `l    __/ /`. :  ; ; \  ;
+       \   .-" .-"-.-"  .' .'j \  /   ;/ 
+        \ / .-"   /.     .'.' ;_:'    ;  
+         :-""-.`./-.'     /    `.___.'   
+               \ `t  ._  /  bug          
+                "-.t-._:'                
+
+
+yoda conditions
+
+if ($value == 42) { /* ... */ }
+// Reads like: "If the value is equal to 42..."
+
+Yoda conditions describe the same expression, but reversed:
+
+if (42 == $value) { /* ... */ }
+// Reads like: "If 42 equals the value..."
+
+Placing the constant value in the expression does not change the behavior of the program (unless the values evaluate to false—see below). In programming languages that use a single equals sign (=) for assignment and not for comparison, a possible mistake is to assign a value unintentionally instead of writing a conditional statement.
+
+if (myNumber = 42) { /* ... */ }
+// This assigns 42 to myNumber instead of evaluating the desired condition
+
+Using Yoda conditions:
+
+if (42 = myNumber) { /* ... */ }
+// This is a syntax error and will not compile
+
+Since 42 is a constant and can not be changed, this error will be caught by the compiler.
+
+Boolean myBoolean = true;
+if (myBoolean = null) { /* ... */ }
+// This causes a NullPointerException in Java Runtime, but legal in compilation.
+
+It can also avoid some types of unsafe null behavior.
+
+String myString = null;
+if (myString.equals("foobar")) { /* ... */ }
+// This causes a NullPointerException in Java
+
+With Yoda conditions:
+
+String myString = null;
+if ("foobar".equals(myString)) { /* ... */ }
+// This is false, as expected
+
+
+Critics of Yoda conditions see the lack of readability as a disadvantage that outweighs the benefits described above. Some programming languages as Python and Swift do not allow variable assignments within conditionals, by defining that assignments do not return a value, in which case this error is impossible to make. 
+
+Many compilers produce a warning for code such as if (myNumber = 42) (e.g., the GCC -Wall option warns suggest parentheses around assignment used as truth value), which alerts the programmer to the likely mistake. In dynamic languages like JavaScript, linters such as ESLint can warn on assignment inside a conditional
+
+Lukasiewitz
+===========
+
+>Łukasiewicz invented the Polish notation (named after his nationality) for the logical connectives around 1920. There is a quotation from his paper, Remarks on Nicod's Axiom and on "Generalizing Deduction", page 180;
+
+    "I came upon the idea of a parenthesis-free notation in 1924. I used that notation for the first time in my article Łukasiewicz(1), p. 610, footnote."
+
+https://en.wikipedia.org/wiki/Jan_%C5%81ukasiewicz
+
+RPN
+===
+
+infix notation
+
+2 + 3
+
+functional notation
+
+f(2, 3) = 2 + 3 (this is not an assignment)
+
+prefix notation
+
++ 2 3
+
+postfix notation
+
+2 3 +
+
+infix notation uses parentheses that define groups of operands and operators, 
+define the sequence in which operations must be conducted.
+
+if there are no parentheses, then we use rules of priority.
+
+* all arguments are located before the sign of operation.
+
+* expression is read left to right.
+
+**  when the sign of operation found, the operation conducted for the last two numbers encountered (in the order they written).
+
+** the result of operation overwrites the operation sign and two operands in the expression.
+
+* the result of the expression is the result of the last conducted operation.
+
+example:
+
+7 - 2 * 3
+
+7 2 3 * -
+
+0. we read from left to right. we encounter * sign.
+   we multiply 2 and 3.
+   the expression becomes 7 6 -
+
+1. 7 6 - means we conduct 7 - 6
+
+
+2. the result of the expression is 1. game over.
+
+properties of RPN
+=================
+
+https://stackoverflow.com/questions/7562477/why-do-we-need-prefix-postfix-notation
+
+>Infix notation is easy to read for humans, whereas pre-/postfix notation is easier to parse for a machine. The big advantage in pre-/postfix notation is that there never arise any questions like operator precedence.
+
+>For example, consider the infix expression 1 # 2 $ 3. Now, we don't know what those operators mean, so there are two possible corresponding postfix expressions: 1 2 # 3 $ and 1 2 3 $ #. Without knowing the rules governing the use of these operators, the infix expression is essentially worthless.
+
+>Or, to put it in more general terms: it is possible to restore the original (parse) tree from a pre-/postfix expression without any additional knowledge, but the same isn't true for infix expressions.
+
+
+
+>Postfix notation, also known as RPN, is very easy to process left-to-right. An operand is pushed onto a stack; an operator pops its operand(s) from the stack and pushes the result. Little or no parsing is necessary. It's used by Forth and by some calculators (HP calculators are noted for using RPN).
+
+
+>At least for the case of the prefix notation: The advantage of using a prefix operator is that syntactically, it reads as if the operator is a function call
+
+sum up:
+
+* The order of operations is unambiguously determined by the order of the operation signs in the expression, so there is no need to use brackets or introduce priorities and associativity of operations.
+
+* contrary to infix notation, we cannot use the same signs to express unary or binary operations:
+
+the expression: 5 * (−3 + 8) uses minus sign as the unary negation operation, while the expression (10 − 15) * 3 uses the same sign to define binary operation substraction.
+
+ you know which operation is this by the position of the sign.
+
+ RPN does not allow this.
+ if you write this expression as 5 3 − 8 + * then how can we know, that the minus sign after the 3 does not mean substraction?
+ as a result we'll have 5 - 3, then 2 + 8, then we have nothing to multiply to.
+
+ how can we write this expression in RPN?
+ 
+     ** we can use 0 - 3.
+     ** we can invent new sign to "invert" the sign, let's say «±»: 5 3 ± 8 + *
+
+* as well as in infix notation, in RPN the same expression can be written in different ways.
+
+  (10 − 15) * 3 can be written as
+
+  10 15 − 3 *
+
+  or
+
+  3 10 15 − *
+
+* because we don't have parentheses, RPN is shorter than infix notation.
+  when we use this notation wich calculators, we press less keys.
+
+  when we have less memory to parse infix expressions, this can be important.
+
+ stack operations
+ ===============
+
+the rules:
+
+0:
+
+* if we get an operand, it is pushed to stack.
+* if we get a sign (such as +, -, *, /), then that operation is conducted by
+  ** popping last two pushed values from the stack
+  ** conducting the operation
+  ** pushing the result back to stack
+
+1: 
+  if there are still operands in the stack, goto 0.
+
+2:
+  otherwise we get the result on the top of the stack.
+
+
+The stack machine implementation, both software and hardware, can be simple and efficient.
+
+RPN uses the same notation for unary, binary, ternary operations, or function calls, which allows to not complicate the computing devices when adding new operations. that is why RPN is widely used in computing devices.
+
+btw, on ternary operations:
+
+in CS, a ternary operator is an operator that takes three arguments.
+
+The arguments and result can be of different types.
+
+Many programming languages that use C-like syntax feature a ternary operator, ?:, which defines a conditional expression.
+
+https://www.cprogramming.com/reference/operators/ternary-operator.html
+
+<condition> ? <true-case-code> : <false-case-code>;
+
+int five_divided_by_x = ( x != 0 ? 5 / x : 0 );
+
+Here, x != 0 is checked first, and if it is true, then the division, 5/x, takes place. Otherwise, the value is 0.
+
+
+https://en.wikipedia.org/wiki/%3F:
+
+An expression a ? b : c evaluates to b if the value of a is true, and otherwise to c.
+
+
+back to stack
+=============
+
+(1 + 2) * 4 + 3
+
+becomes
+
+1 2 + 4 * 3 +
+
+input  op            stack
+
+1      push           1
+
+2      push           1, 2
+
++      pop r1
+       pop r2
+       add r1, r2, r1
+       push r1        3
+
+4      push           3, 4
+
+*      pop r1
+       pop r2
+       mul r1, r2, r1
+       push r1        12
+
+3      push           12, 3
+
++      pop r1
+       pop r2
+       add r1, r2, r1
+       push r1        15
+
+
+
+       
+
+
+
+language Forth uses RPN.
+
+that's why it's easier to implement.
+
+https://www.mathblog.dk/tools/infix-postfix-converter/
+
+converting infix to postfix:  shunting-yard algorithm
+
+dijkstra's original paper.
+http://www.cs.utexas.edu/~EWD/MCReps/MR35.PDF
+
+example:
+
+2 + 3 - 5
+
+would look 2 3 + 5 - in rpn.
+
+therefore:
+
+
+  2     3        +      5      -
+
+|  |   |  |    |  |    |  |   |  |
+|  |   |3 |    |  |    |5 |   |  |
+|2 |   |2 |    |5 |    |5 |   |0 |
+----   ----    ----    ----   ----
+
+
+https://everything2.com/title/reverse+Polish+notation
+
+3 * 4 + 5 * 6
+
+3 4 * 5 6 * +
+
+  3     4        *      5      6     *      +
+
+|  |   |  |    |  |    |  |   |6 |  |  |   |  |   |  |
+|  |   |4 |    |  |    |5 |   |5 |  |30|   |  |   |  |
+|3 |   |3 |    |12|    |12|   |12|  |12|   |42|   |  |
+----   ----    ----    ----   ----  ----   ----   ----
+
+
+https://stackoverflow.com/questions/30974889/why-postfix-rpn-notation-is-more-used-than-prefix
+
+
+>For one it is easier to implement evaluation.
+
+With prefix, if you push an operator, then its operands, you need to have forward knowledge of when the operator has all its operands. Basically you need to keep track of when operators you've pushed have all their operands so that you can unwind the stack and evaluate.
+
+Since a complex expression will likely end up with many operators on the stack you need to have a data structure that can handle this.
+
+For instance, this expression: - + 10 20 + 30 40 will have one - and one + on the stack at the same time, and for each you need to know if you have the operands available.
+
+With suffix, when you push an operator, the operands are (should) already on the stack, simply pop the operands and evaluate. You only need a stack that can handle operands, and no other data structure is necessary.
+

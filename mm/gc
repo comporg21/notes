@@ -1,0 +1,118 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+fpc/delphi syntax for deallocating objects
+
+      var thing : MyClassType;
+
+thing is the pointer to an object, not an actual instance.
+
+then one needs to assign the actual instance:
+
+      thing := MyClassType.Create();
+
+
+the standard way is 
+
+      thing.free;
+
+internally, thing.free is
+
+      if thing <> nil then thing.destroy;
+
+where destroy is the destructor.
+
+another way is to call
+      FreeAndNil(thing)
+
+ is equal to
+    
+      thing.free; thing := nil;
+
+
+https://www.reddit.com/r/pascal/comments/4rbz33/memory_management_in_freepascal/
+GC vs smart pointers:
+
+
+* Smart pointers can't collect cyclic garbage; garbage collection can
+* Smart pointers do all the work at the moments of referencing, dereferencing, and deallocation, on the application thread; garbage collection need not
+
+The former means that GC will collect garbage that smart pointers won't; if you're using smart pointers, you have to avoid creating this kind of garbage, or be prepared to deal with it manually.
+
+The latter means that no matter how smart smart pointers are, their operation will slow down the working threads in your program. Garbage collection can defer work, and move it to other threads; that lets it be more efficient overall (indeed, the runtime cost of a modern GC is less than a normal malloc/free system, even without the extra overhead of smart pointers), and do what work it still needs to do without getting in the way of the application threads.
+
+
+two types of garbage collectors
+===============================
+
+* Reference counting collector
+
+When a new memory object is allocated by the GC, it is given an integer count field. Every time a pointer is made to that object, a reference, the count is increased. So long as the count is a positive non-zero integer, the object is actively being referenced and is still alive.
+
+When a reference to the object is removed, the count is decremented. When the count reaches zero, the object is dead and can be immediately reclaimed.
+
+There are a number of points to remember about Reference Counting collectors:
+
+    Circular references will never be reclaimed, even if the entire set of objects is dead.
+    Reference counting is pervasive: The entire program must be made aware of the system, and every pointer reference or dereference must be accompanied by an appropriate increment or decrement. Failing to maintain the count, even once in a large program, will create memory problems for your program.
+    Reference counting can be costly, because counts must be manipulated for every pointer operation, and the count must be tested against zero on ever decrement. These operations can, if used often enough, create a performance penalty for your program.
+
+These types of collectors are often called cooperative collectors because they require cooperation from the rest of the system to maintain the counts.
+
+
+* Tracing collector
+
+
+
+
+
+
+
+why put something into the language if you can do it in a library?
+
+* You ensure that all code can use it to interoperate. This is, I think, the big reason why code reuse and code sharing didn't really take off until Java/C#/Python/Ruby. Libraries need to communicate, and the only reliable shared language they have is what's in the language spec itself (and, to a degree, its standard library). If you've ever tried to reuse libraries in C++, you've likely experienced the horrendous pain that no standard memory semantics causes. I want to pass a struct to some lib. Do I pass a reference? Pointer? scoped_ptr? smart_ptr? Am I passing ownership, or not? Is there a way to indicate that? What if the lib needs to allocate? Do I have to give it an allocator? By not making memory management part of the language, C++ forces each pair of libraries to have to negotiate their own specific strategy here, and it's really hard to get them all to agree. GC makes that a complete non-issue.
+
+*You can design the syntax around it. Because C++ doesn't encapsulate memory-management itself, it has to provide a range of syntactic hooks to let user-level code express all of the details. You have pointers, references, const, dereferencing operators, indirection operators, address-of, etc. If you roll memory management into the language itself, the syntax can be designed around that. All of those operators disappear and the language gets cleaner and simpler.
+
+* You get a high return on investment. The value any given piece of code generates is multiplied by the number of people using it. This means that the more users you have, the more you can afford to spend on a piece of software. When you move a feature into the language, all users of the language will be using it. This means you can allocate more effort to it than you could to a library only used by a subset of those users. This is why languages like Java and C# have absolutely first-rate VMs and fantastically high-quality garbage collectors: the cost of developing them is amortized across millions of users.
+
+
+
+why gc, if smart pointers are there?
+
+
+
+* Accuracy. Reference counting alone leaks cycles so reference counted smart pointers will leak memory in general unless other techniques are added to catch cycles. Once those techniques are added, reference counting's benefit of simplicity has vanished. Also, note that scope-based reference counting and tracing GCs collect values at different times, sometimes reference counting collects earlier and sometimes tracing GCs collect earlier.
+
+* Throughput. Smart pointers are one of the least efficient forms of garbage collection, particularly in the context of multi-threaded applications when reference counts are bumped atomically. There are advanced reference counting techniques designed to alleviate this but tracing GCs are still the algorithm of choice in production environments.
+
+* Latency. Typical smart pointer implementations allow destructors to avalanche, resulting in unbounded pause times. Other forms of garbage collection are much more incremental and can even be real time, e.g. Baker's treadmill.
+
+
+https://softwareengineering.stackexchange.com/questions/30254/why-garbage-collection-if-smart-pointers-are-there
+
+>The mark-sweep algorithm operates in time linear in the size of the heap (i.e. O(N)).  This doesn’t directly tell us how much overhead it imposes on a program, because it must be invoked whenever an allocation fails, and so the overhead depends on parameters such as how big the heap is, and how much memory has become unreachable since the last GC.  In practice, the overhead, as well as the pause-time, of mark-sweep collectors is high compared to other algorithms.  Mark-sweep does however have the advantage of freeing all unused memory, but this free memory easily becomes fragmented (limiting the availability of larger contiguous regions). 
+
+https://courses.cs.washington.edu/courses/csep521/07wi/prj/rick.pdf
+
+

@@ -1,0 +1,159 @@
+https://www.kernel.org/doc/Documentation/vm/overcommit-accounting
+
+>This file contains the kernel virtual memory accounting mode. Values are:
+
+    0: heuristic overcommit (this is the default)
+    1: always overcommit, never check
+    2: always check, never overcommit
+
+    In mode 0, calls of mmap(2) with MAP_NORESERVE are not checked, and the default check is very weak, leading to the risk of getting a process "OOM-killed". Under Linux 2.4 any non-zero value implies mode 1.
+
+    In mode 2 (available since Linux 2.6), the total virtual address space on the system is limited to (SS + RAM*(r/100)), where "SS" is the size of the swap space, and RAM is the size of the physical memory, and "r" is the contents of the file /proc/sys/vm/overcommit_ratio.
+
+The simple answer is that setting overcommit to 1, will set the stage so that when a program calls something like malloc() to allocate a chunk of memory (man 3 malloc), it will always succeed regardless if the system knows it will not have all the memory that is being asked for.
+
+The underlying concept to understand is the idea of virtual memory. Programs see a virtual address space that may, or may not, be mapped to actual physical memory. By disabling overcommit checking, you tell the OS to just assume that there is always enough physical memory to backup the virtual space.
+
+from man malloc:
+
+NOTES
+By  default,  Linux  follows  an optimistic memory allocation strategy.
+
+This means that when malloc() returns non-NULL there  is  no  guarantee that  the  memory  really  is available.  In case it turns out that the system is out of memory, one or more processes will be  killed  by  the OOM   killer.    For   more   information,   see   the  description  of /proc/sys/vm/overcommit_memory and /proc/sys/vm/oom_adj in proc(5), and the Linux kernel source file Documentation/vm/overcommit-accounting.
+
+
+http://www.win.tue.nl/~aeb/linux/lk/lk-9.html#ss9.6
+
+>Normally, a user-space program reserves (virtual) memory by calling malloc(). If the return value is NULL, the program knows that no more memory is available, and can do something appropriate. Most programs will print an error message and exit, some first need to clean up lockfiles or so, and some smarter programs can do garbage collection, or adapt the computation to the amount of available memory. This is life under Unix, and all is well.
+
+Linux on the other hand is seriously broken. It will by default answer "yes" to most requests for memory, in the hope that programs ask for more than they actually need. If the hope is fulfilled Linux can run more programs in the same memory, or can run a program that requires more virtual memory than is available. And if not then very bad things happen.
+
+What happens is that the OOM killer (OOM = out-of-memory) is invoked, and it will select some process and kill it. One holds long discussions about the choice of the victim. Maybe not a root process, maybe not a process doing raw I/O, maybe not a process that has already spent weeks doing some computation. And thus it can happen that one's emacs is killed when someone else starts more stuff than the kernel can handle. Ach. Very, very primitive.
+
+Of course, the very existence of an OOM killer is a bug.
+
+A typical case: I do umount -a in a situation where 30000 filesystems are mounted. Now umount runs out of memory and the kernel log reports
+
+Sep 19 00:33:10 mette kernel: Out of Memory: Killed process 8631 (xterm).
+Sep 19 00:33:34 mette kernel: Out of Memory: Killed process 9154 (xterm).
+Sep 19 00:34:05 mette kernel: Out of Memory: Killed process 6840 (xterm).
+Sep 19 00:34:42 mette kernel: Out of Memory: Killed process 9066 (xterm).
+Sep 19 00:35:15 mette kernel: Out of Memory: Killed process 9269 (xterm).
+Sep 19 00:35:43 mette kernel: Out of Memory: Killed process 9351 (xterm).
+Sep 19 00:36:05 mette kernel: Out of Memory: Killed process 6752 (xterm).
+
+Randomly xterm windows are killed, until the xterm window that was X's console is killed. Then X exits and all user processes die, including the umount process that caused all this.
+
+OK. This is very bad. People lose long-running processes, lose weeks of computation, just because the kernel is an optimist.
+
+Demo program 1: allocate memory without using it.
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int main (void) {
+        int n = 0;
+
+        while (1) {
+                if (malloc(1<<20) == NULL) {
+                        printf("malloc failure after %d MiB\n", n);
+                        return 0;
+                }
+                printf ("got %d MiB\n", ++n);
+        }
+}
+
+Demo program 2: allocate memory and actually touch it all.
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+int main (void) {
+        int n = 0;
+        char *p;
+
+        while (1) {
+                if ((p = malloc(1<<20)) == NULL) {
+                        printf("malloc failure after %d MiB\n", n);
+                        return 0;
+                }
+                memset (p, 0, (1<<20));
+                printf ("got %d MiB\n", ++n);
+        }
+}
+
+Demo program 3: first allocate, and use later.
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+#define N       10000
+
+int main (void) {
+        int i, n = 0;
+        char *pp[N];
+
+        for (n = 0; n < N; n++) {
+                pp[n] = malloc(1<<20);
+                if (pp[n] == NULL)
+                        break;
+        }
+        printf("malloc failure after %d MiB\n", n);
+
+        for (i = 0; i < n; i++) {
+                memset (pp[i], 0, (1<<20));
+                printf("%d\n", i+1);
+        }
+
+        return 0;
+}
+
+Typically, the first demo program will get a very large amount of memory before malloc() returns NULL. The second demo program will get a much smaller amount of memory, now that earlier obtained memory is actually used. The third program will get the same large amount as the first program, and then is killed when it wants to use its memory. (On a well-functioning system, like Solaris, the three demo programs obtain the same amount of memory and do not crash but see malloc() return NULL.)
+
+For example:
+
+    On an 8 MiB machine without swap running 1.2.11:
+    demo1: 274 MiB, demo2: 4 MiB, demo3: 270 / oom after 1 MiB: Killed.
+    Idem, with 32 MiB swap:
+    demo1: 1528 MiB, demo2: 36 MiB, demo3: 1528 / oom after 23 MiB: Killed.
+    On a 32 MiB machine without swap running 2.0.34:
+    demo1: 1919 MiB, demo2: 11 MiB, demo3: 1919 / oom after 4 MiB: Bus error.
+    Idem, with 62 MiB swap:
+    demo1: 1919 MiB, demo2: 81 MiB, demo3: 1919 / oom after 74 MiB: The machine hangs. After several seconds: Out of memory for bash. Out of memory for crond. Bus error.
+    On a 256 MiB machine without swap running 2.6.8.1:
+    demo1: 2933 MiB, demo2: after 98 MiB: Killed. Also: Out of Memory: Killed process 17384 (java_vm). demo3: 2933 / oom after 135 MiB: Killed.
+    Idem, with 539 MiB swap:
+    demo1: 2933 MiB, demo2: after 635 MiB: Killed. demo3: oom after 624 MiB: Killed.
+
+Other kernels have other strategies. Sometimes processes get a segfault when accessing memory that the kernel is unable to provide, sometimes they are killed, sometimes other processes are killed, sometimes the kernel hangs.
+Turning off overcommit
+Going in the wrong direction
+
+Since 2.1.27 there are a sysctl VM_OVERCOMMIT_MEMORY and proc file /proc/sys/vm/overcommit_memory with values 1: do overcommit, and 0 (default): don't. Unfortunately, this does not allow you to tell the kernel to be more careful, it only allows you to tell the kernel to be less careful. With overcommit_memory set to 1 every malloc() will succeed. When set to 0 the old heuristics are used, the kernel still overcommits.
+Going in the right direction
+
+Since 2.5.30 the values are: 0 (default): as before: guess about how much overcommitment is reasonable, 1: never refuse any malloc(), 2: be precise about the overcommit - never commit a virtual address space larger than swap space plus a fraction overcommit_ratio of the physical memory. Here /proc/sys/vm/overcommit_ratio (by default 50) is another user-settable parameter. It is possible to set overcommit_ratio to values larger than 100. (See also Documentation/vm/overcommit-accounting.)
+
+After
+
+# echo 2 > /proc/sys/vm/overcommit_memory
+
+all three demo programs were able to obtain 498 MiB on this 2.6.8.1 machine (256 MiB, 539 MiB swap, lots of other active processes), very satisfactory.
+
+However, without swap, no more processes could be started - already more than half of the memory was committed. After
+
+# echo 80 > /proc/sys/vm/overcommit_ratio
+
+all three demo programs were able to obtain 34 MiB. (Exercise: solve two equations with two unknowns and conclude that main memory was 250 MiB, and the other processes took 166 MiB.)
+
+One can view the currently committed amount of memory in /proc/meminfo, in the field Committed_AS.
+
+
+pdf live: https://www.youtube.com/watch?v=7aONIVSXiJ8
+
+
+https://msdn.microsoft.com/en-us/library/windows/desktop/aa366887%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396
+
+https://stackoverflow.com/questions/17671423/where-is-the-stack-memory-allocated-from-for-a-linux-process#17672355
