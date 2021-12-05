@@ -1,0 +1,92 @@
+Why Are There Endian Issues at All? Can't We Just Get Along?
+
+Ah, what a philosophical question.
+
+Each byte-order system has its advantages. Little-endian machines let you read the lowest-byte first, without reading the others. You can check whether a number is odd or even (last bit is 0) very easily, which is cool if you're into that kind of thing. Big-endian systems store data in memory the same way we humans think about data (left-to-right), which makes low-level debugging easier.
+
+
+
+
+Consider the number 0x11223344. This number is written with hexadecimal digits (prefix "0x"). Its decimal value is 287454020. Its consists of 4 bytes: 0x11, 0x22, 0x33 and 0x44.
+
+In this value LSB is 0x44 and MSB is 0x11.
+
+
+If you have a number with the value 0x12345678 then in memory it will be represented as 12 34 56 78 (BE) or 78 56 34 12 (LE).
+
+when using two bytes to represent a character in UTF-16, there are two ways to represent the character 0x1234 as a string of bytes (0x00-0xFF):
+
+Byte Index:      0  1
+---------------------
+Big-Endian:     12 34
+Little-Endian:  34 12
+
+In order to decide if a text uses UTF-16BE or UTF-16LE, the specification recommends to prepend a Byte Order Mark (BOM) to the string, representing the character U+FEFF. So, if the first two bytes of a UTF-16 encoded text file are FE, FF, the encoding is UTF-16BE. For FF, FE, it is UTF-16LE.
+
+A visual example: The word "Example" in different encodings (UTF-16 with BOM):
+
+Byte Index:   0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
+------------------------------------------------------------
+ASCII:       45 78 61 6d 70 6c 65
+UTF-16BE:    FE FF 00 45 00 78 00 61 00 6d 00 70 00 6c 00 65
+UTF-16LE:    FF FE 45 00 78 00 61 00 6d 00 70 00 6c 00 65 00
+
+
+
+The purpose of big-endian is to print hex on computer screens left-to-right so they are easier to read by low-level or newb programmers; in other words, because the hex gets printed from low memory addresses to high, the hex gets flipped unless you change it in software. The purpose of Little-endian is to not be a wingnut and leave the bytes in sequential order so you don't make extra work for developers and instead make the VERY limited number of people who care flip the bytes around in software!
+
+
+
+The purpose of big-endian is to print hex on computer screens left-to-right so they are easier to read by low-level or newb programmers; in other words, because the hex gets printed from low memory addresses to high, the hex gets flipped unless you change it in software. The purpose of Little-endian is to not be a wingnut and leave the bytes in sequential order so you don't make extra work for developers and instead make the VERY limited number of people who care flip the bytes around in software!
+
+It is STRONGLY ADVISED to never use big-endian. CPUs today are dual-endian and can handle both big and little endian so unless you're interfacing with legacy hardware almost the entire industry uses little-endian and big-endian has been scheduled to be completely discontinued by developers.
+Little-Endian Without Software Formatting
+
+    In RAM      Printed
+    +----+     0x01000000
+0x4 | 00 |
+    | 00 |
+    | 00 |
+0x0 | 01 |
+    +----+
+
+Big-Endian Without Software Formatting
+
+    In RAM      Printed
+    +----+     0x00000010
+0x4 | 01 |
+    | 00 |
+    | 00 |
+0x0 | 00 |
+    +----+
+
+Little-Endian With Software Formatting
+
+    In RAM      Printed
+    +----+     0x00000010
+0x4 | 00 |
+    | 00 |
+    | 00 |
+0x0 | 01 |
+    +----+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+__________________________
+
+https://stackoverflow.com/questions/22030657/little-endian-vs-big-endian
+https://stackoverflow.com/questions/701624/difference-between-big-endian-and-little-endian-byte-order
+https://stackoverflow.com/questions/47586786/big-endian-and-little-endian-little-confusion
+https://www.geeksforgeeks.org/little-and-big-endian-mystery/
+https://betterexplained.com/articles/understanding-big-and-little-endian-byte-order/
